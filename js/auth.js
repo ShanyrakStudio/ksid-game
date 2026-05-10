@@ -148,18 +148,25 @@ function changeAvatar() {
     }
     const reader = new FileReader();
     reader.onload = function(ev) {
-      const dataUrl = ev.target.result;
-      const users = getUsers();
-      const user = users.find(u => u.id === currentUser.id);
-      if (user) {
+    const dataUrl = ev.target.result;
+    
+    // === ВОТ ЭТО ДОБАВЛЯЕМ ===
+    if (window.saveAvatar) {
+        window.saveAvatar(dataUrl);
+    }
+    // =========================
+
+    const users = getUsers();
+    const user = users.find(u => u.id === currentUser.id);
+    if (user) {
         user.avatar = dataUrl;
         saveUsers(users);
         currentUser.avatar = dataUrl;
         setSession(currentUser);
         updateHeader();
-        showToast('Аватар обновлён!', 'success');
-      }
-    };
+        showToast('Аватар обновлен!', 'success');
+    }
+};
     reader.readAsDataURL(file);
   };
   input.click();
