@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🐍 Змейка — KSID</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/snake.css">
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="header-logo">
+      <div class="header-logo-icon">K</div>
+      KSID
+    </a>
+    <div class="header-search">
+      <input type="text" placeholder="Поиск игр...">
+    </div>
+    <div class="header-actions">
+      <div class="account-menu">
+        <button class="account-btn" onclick="toggleAccountMenu()">
+          <div class="account-avatar" id="userAvatar">A</div>
+          <span class="account-name" id="userName">Admin</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="account-dropdown" id="accountDropdown">
+          <div class="account-dropdown-header">
+            <div class="account-avatar" id="dropdownAvatar">A</div>
+            <div class="info">
+              <h4 id="dropdownName">Admin</h4>
+              <div class="email" id="dropdownEmail">admin@ksid.local</div>
+              <div class="role" id="dropdownRole">Администратор</div>
+            </div>
+          </div>
+          <button class="account-dropdown-item" onclick="changeAvatar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Сменить аватар
+          </button>
+          <button class="account-dropdown-item" onclick="openModal('passwordModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Сменить пароль
+          </button>
+          <button class="account-dropdown-item" id="adminPanelBtn" onclick="openModal('adminModal')" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Управление пользователями
+          </button>
+          <div style="border-top:1px solid var(--border); margin:4px 0;"></div>
+          <button class="account-dropdown-item danger" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Выйти
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="game-page">
+    <div class="game-container">
+      <div class="game-header">
+        <h1>🐍 Змейка Онлайн</h1>
+        <button class="btn-secondary" onclick="location.href='index.html'">← Назад</button>
+      </div>
+      <div class="game-area" id="gameArea">
+        <canvas id="gameCanvas" width="500" height="500" class="game-canvas"></canvas>
+        <div class="game-overlay" id="gameOverlay">
+          <div class="overlay-content">
+            <div class="overlay-icon">🐍</div>
+            <h2 id="overlayTitle">Нажми "Новая игра"</h2>
+            <p id="overlaySubtitle">или клавишу R</p>
+          </div>
+        </div>
+        <div class="game-controls">
+          <button class="btn-glow" id="btnNewGame" onclick="startGame()">🔄 Новая игра</button>
+          <button class="btn-secondary" id="btnPause" onclick="togglePause()">⏸ Пауза</button>
+        </div>
+        <div class="swipe-hint">👆 Свайпай пальцем или используй кнопки</div>
+        <div class="d-pad" id="dPad">
+          <div class="d-pad-grid">
+            <div class="d-empty"></div>
+            <button class="d-btn" data-dir="up">▲</button>
+            <div class="d-empty"></div>
+            <button class="d-btn" data-dir="left">◀</button>
+            <button class="d-btn d-btn-center" id="btnPausePad">⏸</button>
+            <button class="d-btn" data-dir="right">▶</button>
+            <div class="d-empty"></div>
+            <button class="d-btn" data-dir="down">▼</button>
+            <div class="d-empty"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-sidebar">
+      <div class="sidebar-card">
+        <h3>📊 Статистика</h3>
+        <div class="stat-row"><span class="stat-label">Счёт</span><span class="stat-value" id="statScore">0</span></div>
+        <div class="stat-row"><span class="stat-label">Рекорд</span><span class="stat-value" id="statHigh">0</span></div>
+        <div class="stat-row"><span class="stat-label">Время</span><span class="stat-value" id="statTime">00:00</span></div>
+        <div class="stat-row"><span class="stat-label">Длина</span><span class="stat-value" id="statLen">1</span></div>
+      </div>
+      <div class="sidebar-card">
+        <h3>🎮 Управление</h3>
+        <div class="stat-row"><span class="stat-label">Движение</span><span class="stat-value">WASD / Стрелки</span></div>
+        <div class="stat-row"><span class="stat-label">Пауза</span><span class="stat-value">Пробел / Тап</span></div>
+        <div class="stat-row"><span class="stat-label">Рестарт</span><span class="stat-value">R</span></div>
+        <div class="stat-row"><span class="stat-label">Телефон</span><span class="stat-value">Свайпы / D-Pad</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- PASSWORD MODAL -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal">
+    <div class="modal-header"><h3>🔐 Сменить пароль</h3><button class="modal-close" onclick="closeModal('passwordModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>Новый пароль</label><input type="password" id="newPassword" placeholder="Минимум 6 символов"></div>
+      <div class="form-row"><label>Повторите пароль</label><input type="password" id="confirmPassword" placeholder="Повторите"></div>
+      <button class="btn-glow" style="width:auto;" onclick="changePassword()">Обновить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <div class="modal-header"><h3>👥 Управление пользователями</h3><button class="modal-close" onclick="closeModal('adminModal')">×</button></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <input type="text" id="newUserLogin" placeholder="Логин" style="flex:1;padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;">
+        <input type="text" id="newUserPass" placeholder="Пароль" style="flex:1;padding:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;">
+        <button class="btn-small" onclick="addUser()">Создать</button>
+      </div>
+      <table class="users-table">
+        <thead><tr><th>Пользователь</th><th>Роль</th><th>Дата</th><th>Действия</th></tr></thead>
+        <tbody id="usersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Подтвердите</h3>
+    <p id="confirmText">Вы уверены?</p>
+    <div class="confirm-buttons">
+      <button class="confirm-btn-cancel" onclick="confirmNo()">Отмена</button>
+      <button class="confirm-btn-confirm" onclick="confirmYes()">Да, подтверждаю</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/auth.js"></script>
+<script src="js/snake.js"></script>
+</body>
+</html>
