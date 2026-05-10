@@ -49,28 +49,28 @@ function setHighScore(val) {
 function initGame() {
   canvas = document.getElementById('gameCanvas');
   ctx = canvas.getContext('2d');
-  
+
   // Resize canvas for high DPI
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
   canvas.width = 500 * dpr;
   canvas.height = 500 * dpr;
   ctx.scale(dpr, dpr);
-  
+
   // Initial draw
   drawEmptyBoard();
   updateStats();
   showOverlay('🐍', 'Нажми "Новая игра"', 'или клавишу R');
-  
+
   // Setup D-pad
   setupDPad();
-  
+
   // Setup keyboard
   document.addEventListener('keydown', handleKeyDown, { passive: false });
-  
+
   // Setup touch/swipe
   setupTouch();
-  
+
   // Prevent pull-to-refresh
   document.body.style.overscrollBehavior = 'none';
 }
@@ -110,14 +110,14 @@ function startGame() {
   isGameOver = false;
   isGameStarted = true;
   startTime = Date.now();
-  
+
   updateStats();
   hideOverlay();
-  
+
   if (gameLoop) clearInterval(gameLoop);
   gameLoop = setInterval(update, getSpeed());
   draw();
-  
+
   updateButtonStates();
 }
 
@@ -141,39 +141,39 @@ function randomFood() {
 // ===== UPDATE =====
 function update() {
   if (isPaused || isGameOver || !isGameStarted) return;
-  
+
   dx = nextDx;
   dy = nextDy;
-  
+
   const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-  
+
   // Wall wrap
   if (head.x < 0) head.x = tileCount - 1;
   if (head.x >= tileCount) head.x = 0;
   if (head.y < 0) head.y = tileCount - 1;
   if (head.y >= tileCount) head.y = 0;
-  
+
   // Self collision
   if (snake.some(s => s.x === head.x && s.y === head.y)) {
     gameOver();
     return;
   }
-  
+
   snake.unshift(head);
-  
+
   if (head.x === food.x && head.y === food.y) {
     score += 10;
     showScorePopup(head.x * gridSize + gridSize/2, head.y * gridSize);
     food = randomFood();
     updateStats();
-    
+
     // Adjust speed
     clearInterval(gameLoop);
     gameLoop = setInterval(update, getSpeed());
   } else {
     snake.pop();
   }
-  
+
   draw();
   updateTime();
 }
@@ -183,7 +183,7 @@ function draw() {
   // Clear
   ctx.fillStyle = '#0a0a1a';
   ctx.fillRect(0, 0, 500, 500);
-  
+
   // Grid
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
   ctx.lineWidth = 0.5;
@@ -191,7 +191,7 @@ function draw() {
     ctx.beginPath(); ctx.moveTo(i * gridSize, 0); ctx.lineTo(i * gridSize, 500); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, i * gridSize); ctx.lineTo(500, i * gridSize); ctx.stroke();
   }
-  
+
   // Food with glow
   ctx.shadowColor = '#ff1744';
   ctx.shadowBlur = 20;
@@ -199,19 +199,19 @@ function draw() {
   ctx.beginPath();
   ctx.arc(food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2, gridSize/2 - 3, 0, Math.PI * 2);
   ctx.fill();
-  
+
   // Food inner highlight
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#ff5252';
   ctx.beginPath();
   ctx.arc(food.x * gridSize + gridSize/2 - 2, food.y * gridSize + gridSize/2 - 2, 3, 0, Math.PI * 2);
   ctx.fill();
-  
+
   // Snake
   snake.forEach((seg, i) => {
     const x = seg.x * gridSize;
     const y = seg.y * gridSize;
-    
+
     if (i === 0) {
       // Head
       const g = ctx.createLinearGradient(x, y, x + gridSize, y + gridSize);
@@ -220,12 +220,12 @@ function draw() {
       ctx.fillStyle = g;
       ctx.shadowColor = '#ff2d75';
       ctx.shadowBlur = 12;
-      
+
       // Rounded head
       roundRect(ctx, x + 1, y + 1, gridSize - 2, gridSize - 2, 4);
       ctx.fill();
       ctx.shadowBlur = 0;
-      
+
       // Eyes
       ctx.fillStyle = '#fff';
       const eyeOffset = 4;
@@ -250,7 +250,7 @@ function draw() {
       ctx.fill();
     }
   });
-  
+
   ctx.shadowBlur = 0;
 }
 
@@ -283,7 +283,7 @@ function showScorePopup(x, y) {
 function gameOver() {
   isGameOver = true;
   clearInterval(gameLoop);
-  
+
   const high = getHighScore();
   if (score > high) {
     setHighScore(score);
@@ -293,7 +293,7 @@ function gameOver() {
     showOverlay('💀', 'Игра окончена! Счёт: ' + score, 'Рекорд: ' + high);
     showToast('💀 Игра окончена! Счёт: ' + score, 'error');
   }
-  
+
   updateStats();
   updateButtonStates();
 }
@@ -323,9 +323,9 @@ function togglePause() {
     startGame();
     return;
   }
-  
+
   isPaused = !isPaused;
-  
+
   if (isPaused) {
     showOverlay('⏸', 'Пауза', 'Нажми снова для продолжения');
     showToast('⏸ Пауза');
@@ -333,14 +333,14 @@ function togglePause() {
     hideOverlay();
     showToast('▶ Продолжаем!');
   }
-  
+
   updateButtonStates();
 }
 
 function updateButtonStates() {
   const btnPause = document.getElementById('btnPause');
   const btnPausePad = document.getElementById('btnPausePad');
-  
+
   if (isGameOver || !isGameStarted) {
     btnPause.textContent = '⏸ Пауза';
     if (btnPausePad) btnPausePad.textContent = '⏸';
@@ -359,7 +359,7 @@ function setDir(ndx, ndy) {
   if ((ndx !== 0 && ndx === -dx) || (ndy !== 0 && ndy === -dy)) return;
   nextDx = ndx;
   nextDy = ndy;
-  
+
   // Auto-start on first direction input
   if (!isGameStarted && !isGameOver) {
     startGame();
@@ -369,14 +369,14 @@ function setDir(ndx, ndy) {
 // ===== KEYBOARD =====
 function handleKeyDown(e) {
   const key = e.key;
-  
+
   // Block scroll for game keys
   const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Space', 'w', 'W', 'a', 'A', 's', 'S', 'd', 'D', 'r', 'R'];
   if (gameKeys.includes(key)) {
     e.preventDefault();
     e.stopPropagation();
   }
-  
+
   if (key === 'ArrowUp' || key === 'w' || key === 'W') setDir(0, -1);
   else if (key === 'ArrowDown' || key === 's' || key === 'S') setDir(0, 1);
   else if (key === 'ArrowLeft' || key === 'a' || key === 'A') setDir(-1, 0);
@@ -393,34 +393,34 @@ function setupDPad() {
     'left': [-1, 0],
     'right': [1, 0]
   };
-  
+
   document.querySelectorAll('.d-btn[data-dir]').forEach(btn => {
     const dir = btn.dataset.dir;
     const [ndx, ndy] = dirs[dir];
-    
-    // Touch events
-    btn.addEventListener('touchstart', function(e) {
+
+    // Touch events - use pointerdown for better mobile support
+    btn.addEventListener('pointerdown', function(e) {
       e.preventDefault();
       e.stopPropagation();
       setDir(ndx, ndy);
-    }, { passive: false });
-    
-    // Mouse events (for testing on desktop)
+    });
+
+    // Mouse events
     btn.addEventListener('mousedown', function(e) {
       e.preventDefault();
       setDir(ndx, ndy);
     });
   });
-  
+
   // Pause button on D-pad
   const pauseBtn = document.getElementById('btnPausePad');
   if (pauseBtn) {
-    pauseBtn.addEventListener('touchstart', function(e) {
+    pauseBtn.addEventListener('pointerdown', function(e) {
       e.preventDefault();
       e.stopPropagation();
       togglePause();
-    }, { passive: false });
-    
+    });
+
     pauseBtn.addEventListener('mousedown', function(e) {
       e.preventDefault();
       togglePause();
@@ -431,51 +431,59 @@ function setupDPad() {
 // ===== TOUCH / SWIPE =====
 function setupTouch() {
   let tsX = 0, tsY = 0, tsT = 0;
+  let isTouching = false;
   const gameArea = document.getElementById('gameArea');
-  
-  // Prevent all default touch behaviors in game area
-  gameArea.addEventListener('touchstart', function(e) {
+  const canvas = document.getElementById('gameCanvas');
+
+  // Only handle touch on canvas area, not on buttons
+  canvas.addEventListener('touchstart', function(e) {
     tsX = e.touches[0].clientX;
     tsY = e.touches[0].clientY;
     tsT = Date.now();
+    isTouching = true;
   }, { passive: true });
-  
-  gameArea.addEventListener('touchmove', function(e) {
-    e.preventDefault();
+
+  canvas.addEventListener('touchmove', function(e) {
+    if (isTouching) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   }, { passive: false });
-  
-  gameArea.addEventListener('touchend', function(e) {
-    if (!tsX && !tsY) return;
-    
+
+  canvas.addEventListener('touchend', function(e) {
+    if (!isTouching) return;
+    isTouching = false;
+
     const ex = e.changedTouches[0].clientX;
     const ey = e.changedTouches[0].clientY;
     const dx2 = ex - tsX;
     const dy2 = ey - tsY;
     const dt = Date.now() - tsT;
-    
-    // Tap = pause (only if not on buttons)
+
+    // Tap on canvas = pause
     if (Math.abs(dx2) < 15 && Math.abs(dy2) < 15 && dt < 250) {
-      // Don't trigger if tapped on a button
-      const target = e.target;
-      if (target.tagName === 'BUTTON' || target.closest('button')) {
-        tsX = 0; tsY = 0;
-        return;
-      }
       togglePause();
       tsX = 0; tsY = 0;
       return;
     }
-    
-    // Swipe
+
+    // Swipe on canvas = direction
     const minSwipe = 30;
     if (Math.abs(dx2) > Math.abs(dy2)) {
       if (Math.abs(dx2) > minSwipe) setDir(dx2 > 0 ? 1 : -1, 0);
     } else {
       if (Math.abs(dy2) > minSwipe) setDir(0, dy2 > 0 ? 1 : -1);
     }
-    
+
     tsX = 0; tsY = 0;
   }, { passive: true });
+
+  // Prevent pull-to-refresh globally
+  document.addEventListener('touchmove', function(e) {
+    if (e.target === canvas || canvas.contains(e.target)) {
+      e.preventDefault();
+    }
+  }, { passive: false });
 }
 
 // ===== START ON LOAD =====
