@@ -65,7 +65,8 @@ function initGame() {
   // Setup D-pad
   setupDPad();
 
-  // Setup keyboard
+  // Setup keyboard - remove old listener first to avoid duplicates
+  document.removeEventListener('keydown', handleKeyDown);
   document.addEventListener('keydown', handleKeyDown, { passive: false });
 
   // Setup touch/swipe
@@ -369,6 +370,7 @@ function setDir(ndx, ndy) {
 // ===== KEYBOARD =====
 function handleKeyDown(e) {
   const key = e.key;
+  const code = e.code;
 
   // Block scroll for game keys
   const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Space', 'w', 'W', 'a', 'A', 's', 'S', 'd', 'D', 'r', 'R'];
@@ -377,12 +379,20 @@ function handleKeyDown(e) {
     e.stopPropagation();
   }
 
-  if (key === 'ArrowUp' || key === 'w' || key === 'W') setDir(0, -1);
-  else if (key === 'ArrowDown' || key === 's' || key === 'S') setDir(0, 1);
-  else if (key === 'ArrowLeft' || key === 'a' || key === 'A') setDir(-1, 0);
-  else if (key === 'ArrowRight' || key === 'd' || key === 'D') setDir(1, 0);
-  else if (key === ' ' || key === 'Space') togglePause();
-  else if (key === 'r' || key === 'R') startGame();
+  // Use both key and code for maximum compatibility
+  const isUp = key === 'ArrowUp' || key === 'w' || key === 'W' || code === 'ArrowUp' || code === 'KeyW';
+  const isDown = key === 'ArrowDown' || key === 's' || key === 'S' || code === 'ArrowDown' || code === 'KeyS';
+  const isLeft = key === 'ArrowLeft' || key === 'a' || key === 'A' || code === 'ArrowLeft' || code === 'KeyA';
+  const isRight = key === 'ArrowRight' || key === 'd' || key === 'D' || code === 'ArrowRight' || code === 'KeyD';
+  const isSpace = key === ' ' || key === 'Space' || code === 'Space';
+  const isR = key === 'r' || key === 'R' || code === 'KeyR';
+
+  if (isUp) setDir(0, -1);
+  else if (isDown) setDir(0, 1);
+  else if (isLeft) setDir(-1, 0);
+  else if (isRight) setDir(1, 0);
+  else if (isSpace) togglePause();
+  else if (isR) startGame();
 }
 
 // ===== D-PAD =====
@@ -490,3 +500,8 @@ function setupTouch() {
 window.addEventListener('load', function() {
   initGame();
 });
+
+// Also ensure keyboard works immediately if DOM is already ready
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(initGame, 1);
+}

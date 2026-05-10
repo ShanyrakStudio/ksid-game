@@ -171,29 +171,28 @@
 /* ===== MOBILE D-PAD ===== */
 .d-pad {
   display: none;
-  margin-top: 16px;
-  margin-bottom: 20px;
+  margin-top: 12px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
 }
 .d-pad-grid {
   display: grid;
-  grid-template-columns: repeat(3, 70px);
-  grid-template-rows: repeat(3, 70px);
-  gap: 8px;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
   justify-content: center;
 }
 .d-btn {
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   color: #fff;
-  font-size: 24px;
+  font-size: 18px;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.1s;
-  box-shadow: 0 4px 15px rgba(255,45,117,0.3);
+  box-shadow: 0 3px 10px rgba(255,45,117,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -201,13 +200,13 @@
   touch-action: manipulation;
 }
 .d-btn:active {
-  transform: scale(0.9);
-  box-shadow: 0 2px 8px rgba(255,45,117,0.2);
+  transform: scale(0.92);
+  box-shadow: 0 2px 6px rgba(255,45,117,0.2);
 }
 .d-btn-center {
   background: var(--bg-hover);
   color: var(--text-2);
-  font-size: 20px;
+  font-size: 16px;
 }
 .d-empty { visibility: hidden; }
 
@@ -215,73 +214,83 @@
 @media (max-width: 768px) {
   .game-page { 
     grid-template-columns: 1fr; 
-    gap: 16px;
+    gap: 12px;
+    margin-top: 8px;
   }
   .game-sidebar { display: none; }
   .game-canvas { 
     width: 100%; 
-    max-width: 340px; 
+    max-width: 320px; 
     height: auto; 
   }
   .game-overlay {
-    width: 340px;
-    height: 340px;
-    top: 16px;
+    width: 320px;
+    height: 320px;
+    top: 12px;
   }
   .d-pad { 
     display: grid; 
-    margin-top: 12px;
-    margin-bottom: 40px;
+    margin-top: 10px;
+    margin-bottom: 20px;
   }
   .swipe-hint { 
     display: block; 
-    margin-top: 8px;
-    margin-bottom: 4px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    font-size: 12px;
   }
   .header-search { display: none; }
   .game-area {
-    padding: 12px;
-    padding-bottom: 20px;
+    padding: 10px;
+    padding-bottom: 10px;
   }
   .game-header {
-    padding: 16px 20px;
+    padding: 14px 16px;
   }
   .game-header h1 {
-    font-size: 18px;
+    font-size: 16px;
+    gap: 8px;
   }
   .game-controls {
-    margin-top: 12px;
+    margin-top: 10px;
     gap: 8px;
   }
   .btn-glow, .btn-secondary {
-    padding: 12px 20px;
-    font-size: 14px;
+    padding: 10px 16px;
+    font-size: 13px;
+    border-radius: 12px;
   }
   .main {
-    padding: 12px;
+    padding: 8px;
   }
-  /* Ensure page scrolls enough to show D-pad */
   body {
-    padding-bottom: 100px;
+    padding-bottom: 20px;
   }
 }
 
 /* Extra small screens */
 @media (max-width: 380px) {
   .game-canvas {
-    max-width: 300px;
+    max-width: 280px;
   }
   .game-overlay {
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
   }
   .d-pad-grid {
-    grid-template-columns: repeat(3, 60px);
-    grid-template-rows: repeat(3, 60px);
-    gap: 6px;
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(3, 50px);
+    gap: 5px;
   }
   .d-btn {
-    font-size: 20px;
-    border-radius: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  .game-header h1 {
+    font-size: 14px;
+  }
+  .btn-glow, .btn-secondary {
+    padding: 8px 14px;
+    font-size: 12px;
   }
 }
