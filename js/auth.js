@@ -6,6 +6,18 @@ const DB = {
   avatars: 'ksid_avatars'
 };
 
+// ===== DEFAULT AVATAR =====
+const DEFAULT_AVATAR = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+PGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iNDgiIGZpbGw9IiMxYTFhMmUiIHN0cm9rZT0iIzI1MjU0NSIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSIzNSIgcj0iMTgiIGZpbGw9IiM2YjcyODAiLz48cGF0aCBkPSJNMTUgNzBjMC0xMiAxNS0yMiAzNS0yMnMzNSAxMCAzNSAyMnYxNWMwIDUtNCA4LTggOGgtNTRjLTQgMC04LTMtOC04VjcweiIgZmlsbD0iIzZiNzI4MCIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMwLDU4KSI+PHBhdGggZD0iTTAgMTBjMC01IDQtOCA4LThoMjRjNCAwIDggMyA4IDh2OGMwIDUtNCA4LTggOGgtMjRjLTQgMC04LTMtOC04VjEweiIgZmlsbD0iIzI1MjU0NSIvPjxyZWN0IHg9IjYiIHk9IjgiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHJ4PSIxIiBmaWxsPSIjNmI3MjgwIi8+PHJlY3QgeD0iMiIgeT0iMTAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHJ4PSIxIiBmaWxsPSIjNmI3MjgwIi8+PHJlY3QgeD0iNiIgeT0iMTQiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIHJ4PSIxIiBmaWxsPSIjNmI3MjgwIi8+PHJlY3QgeD0iMTAiIHk9IjEwIiB3aWR0aD0iNCIgaGVpZ2h0PSI0IiByeD0iMSIgZmlsbD0iIzZiNzI4MCIvPjxjaXJjbGUgY3g9IjI4IiBjeT0iMTEiIHI9IjIiIGZpbGw9IiM2YjcyODAiLz48Y2lyY2xlIGN4PSIzNCIgY3k9IjExIiByPSIyIiBmaWxsPSIjNmI3MjgwIi8+PGNpcmNsZSBjeD0iMzEiIGN5PSI4IiByPSIyIiBmaWxsPSIjNmI3MjgwIi8+PGNpcmNsZSBjeD0iMzEiIGN5PSIxNCIgcj0iMiIgZmlsbD0iIzZiNzI4MCIvPjwvZz48L3N2Zz4=';
+
+function getDefaultAvatar() {
+  return DEFAULT_AVATAR;
+}
+
+function getUserAvatar(user) {
+  if (user && user.avatar) return user.avatar;
+  return getDefaultAvatar();
+}
+
 function getUsers() {
   const data = localStorage.getItem(DB.users);
   if (data) return JSON.parse(data);
@@ -111,13 +123,9 @@ function updateHeader() {
   document.getElementById('userName').textContent = u.login;
   const avatarEl = document.getElementById('userAvatar');
   const dropAvatar = document.getElementById('dropdownAvatar');
-  if (u.avatar) {
-    avatarEl.innerHTML = '<img src="' + u.avatar + '" alt="">';
-    dropAvatar.innerHTML = '<img src="' + u.avatar + '" alt="">';
-  } else {
-    avatarEl.textContent = u.login[0].toUpperCase();
-    dropAvatar.textContent = u.login[0].toUpperCase();
-  }
+  const avatarUrl = getUserAvatar(u);
+  avatarEl.innerHTML = '<img src="' + avatarUrl + '" alt="">';
+  dropAvatar.innerHTML = '<img src="' + avatarUrl + '" alt="">';
   document.getElementById('dropdownName').textContent = u.login;
   document.getElementById('dropdownEmail').textContent = u.email || 'Email не привязан';
   document.getElementById('dropdownRole').textContent = u.role === 'admin' ? 'Администратор' : 'Игрок';
@@ -133,6 +141,11 @@ function changeAvatar() {
   input.onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showToast('Файл слишком большой (макс 2MB)', 'error');
+      return;
+    }
     const reader = new FileReader();
     reader.onload = function(ev) {
       const dataUrl = ev.target.result;
@@ -150,6 +163,21 @@ function changeAvatar() {
     reader.readAsDataURL(file);
   };
   input.click();
+}
+
+function removeAvatar() {
+  showConfirm('Удалить аватарку?', 'Будет установлена аватарка по умолчанию.', function() {
+    const users = getUsers();
+    const user = users.find(u => u.id === currentUser.id);
+    if (user) {
+      user.avatar = null;
+      saveUsers(users);
+      currentUser.avatar = null;
+      setSession(currentUser);
+      updateHeader();
+      showToast('Аватарка удалена', 'success');
+    }
+  });
 }
 
 // ===== EMAIL BINDING =====
@@ -401,3 +429,47 @@ window.addEventListener('load', function() {
   }
 });
 
+// ===== ACCOUNT SYNC (for cross-device usage) =====
+function exportAccountData() {
+  const users = getUsers();
+  const session = getSession();
+  const data = {
+    users: users,
+    session: session,
+    exportedAt: new Date().toISOString()
+  };
+  const json = JSON.stringify(data);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ksid_backup_' + (session ? session.login : 'data') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Данные экспортированы!', 'success');
+}
+
+function importAccountData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.users) {
+          saveUsers(data.users);
+          showToast('Данные импортированы! Перезагрузи страницу.', 'success');
+          setTimeout(() => location.reload(), 1500);
+        }
+      } catch(err) {
+        showToast('Неверный файл', 'error');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
