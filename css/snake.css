@@ -60,7 +60,7 @@
   max-width: calc(100% - 56px);
   height: 500px;
   max-height: calc(100vw - 56px);
-  background: rgba(10, 10, 26, 0.85);
+  background: rgba(10, 10, 26, 0.9);
   backdrop-filter: blur(8px);
   border-radius: 16px;
   display: flex;
@@ -171,7 +171,8 @@
 /* ===== MOBILE D-PAD ===== */
 .d-pad {
   display: none;
-  margin-top: 20px;
+  margin-top: 16px;
+  margin-bottom: 20px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
@@ -212,24 +213,75 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .game-page { grid-template-columns: 1fr; }
-  .game-sidebar { display: none; }
-  .game-canvas { width: 100%; max-width: 350px; height: auto; }
-  .game-overlay {
-    width: 350px;
-    height: 350px;
+  .game-page { 
+    grid-template-columns: 1fr; 
+    gap: 16px;
   }
-  .d-pad { display: grid; }
-  .swipe-hint { display: block; }
+  .game-sidebar { display: none; }
+  .game-canvas { 
+    width: 100%; 
+    max-width: 340px; 
+    height: auto; 
+  }
+  .game-overlay {
+    width: 340px;
+    height: 340px;
+    top: 16px;
+  }
+  .d-pad { 
+    display: grid; 
+    margin-top: 12px;
+    margin-bottom: 40px;
+  }
+  .swipe-hint { 
+    display: block; 
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
   .header-search { display: none; }
   .game-area {
-    padding: 16px;
-    padding-bottom: 120px; /* Extra space for D-pad */
+    padding: 12px;
+    padding-bottom: 20px;
   }
   .game-header {
     padding: 16px 20px;
   }
   .game-header h1 {
+    font-size: 18px;
+  }
+  .game-controls {
+    margin-top: 12px;
+    gap: 8px;
+  }
+  .btn-glow, .btn-secondary {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  .main {
+    padding: 12px;
+  }
+  /* Ensure page scrolls enough to show D-pad */
+  body {
+    padding-bottom: 100px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 380px) {
+  .game-canvas {
+    max-width: 300px;
+  }
+  .game-overlay {
+    width: 300px;
+    height: 300px;
+  }
+  .d-pad-grid {
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(3, 60px);
+    gap: 6px;
+  }
+  .d-btn {
     font-size: 20px;
+    border-radius: 12px;
   }
 }
